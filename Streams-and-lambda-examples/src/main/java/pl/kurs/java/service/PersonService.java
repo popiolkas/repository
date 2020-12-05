@@ -28,28 +28,14 @@ public class PersonService {
 	
 
 	public static List<Person> manList(List<Person> list) {
-		return Optional.ofNullable(list).orElse(Collections.emptyList())
+		return Optional.ofNullable(list)
+				.orElse(Collections.emptyList())
 				.stream()
 				.filter(Objects::nonNull)
 				.filter(x -> !x.getName().endsWith("a"))
 				.collect(Collectors.toList());
 	}
-	
-	//Napisz metodę, która liczy średnią wieku osób
-	public static double getPersonsAverageAge2(List<Person> list) {
-		if(list == null || list.isEmpty()) {
-			throw new IllegalArgumentException("WTF");
-		}
-		
-		return Math.round((list
-				.stream()
-				.filter(Objects::nonNull)
-				.mapToDouble(p->p.getAge())
-				.sum()/list.size())*100)/100.0;
-	}
-
-	
-	
+			
 	public static double getPersonsAverageAge(List<Person> list) {		
 		return  Optional.ofNullable(list).orElse(Collections.emptyList())
 				.stream()
@@ -60,43 +46,39 @@ public class PersonService {
 	
 	// * - metode ktora zwraca sredni wiek mezczyzn 
 	public static double getManAverageAge(List<Person> list) {
-		if(list == null) {
-			throw new IllegalArgumentException("Lista nie może być nullem");
-		}
-		
-		List<Person> mans = manList(list);
-		
-		return Math.round((mans.stream().filter(Objects::nonNull).mapToDouble(p->p.getAge()).sum()/mans.size())*100)/100.0;
+		return  Optional.ofNullable(manList(list))
+				.orElse(Collections.emptyList())
+				.stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.averagingDouble(Person::getAge));
 	}
 	
 	//	 * - metode ktora zwrca sredni wiek kobiet 
 	public static double getWomenAverageAge(List<Person> list) {
-		if(list == null) {
-			throw new IllegalArgumentException("Lista nie może być nullem");
-		}
-		
-		List<Person> womens = womenList(list);
-		
-		return Math.round((womens.stream().filter(Objects::nonNull).mapToDouble(p->p.getAge()).sum()/womens.size())*100)/100.0;
+
+		return Optional.ofNullable(womenList(list))
+				.orElse(Collections.emptyList())
+				.stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.averagingDouble(Person::getAge));
 	}
 	
 	// * - metode ktora agreguje dwie metody powyzej (tzn: jako drugi parametr przyjmuje funkcje ktora okresla plec) 
 	public static double getAverageAgeFunction(List<Person> list, Predicate<Person> predicate) {
-
-		if (list == null) {
-			throw new IllegalArgumentException("Lista nie może być nullem");
-		}
 		
-		long count = list.stream().filter(Objects::nonNull).filter(predicate).count();
-
-		return (list.stream().filter(Objects::nonNull).filter(predicate).mapToDouble(p -> p.getAge()).sum() / count);
+		return Optional.ofNullable(list)
+				.orElse(Collections.emptyList())
+				.stream()
+				.filter(Objects::nonNull)
+				.filter(predicate)
+				.collect(Collectors.averagingDouble(Person::getAge));
 	}
 	
 	// * - metode ktora znajdze miasto w ktorym zyje najwiecej ludzi 
 	
 	public static String getCityWithBiggestPopulation(List<Person> list) {
 								
-		return Optional.ofNullable(list).orElse(Collections.emptyList())
+		return  Optional.ofNullable(list).orElse(Collections.emptyList())
 				.stream()
 				.filter(Objects::nonNull)
 				.filter(x -> Objects.nonNull(x.getCity()))
@@ -110,10 +92,11 @@ public class PersonService {
 	
 	// * - metode ktora zwroci wszystkie rozne miasta z listy osob(rozne tzn: bez powtorzen)
 	public static List<String> allCities(List<Person> list){
-		if (list == null) {
-			throw new IllegalArgumentException("Lista nie może być nullem");
-		}
-
-		return list.stream().map(Person::getCity).distinct().collect(Collectors.toList());
+			return Optional.ofNullable(list)
+					.orElse(Collections.emptyList())
+					.stream()
+					.map(Person::getCity)
+					.distinct()
+					.collect(Collectors.toList());
 	}
 }
